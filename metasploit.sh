@@ -22,7 +22,8 @@ apt install -y ncurses-utils autoconf bison clang coreutils finch curl findutils
 
 ln -sf $PREFIX/include/libxml2/libxml $PREFIX/include/
 cd $msfpath
-wget https://github.com/rapid7/metasploit-framework/archive/$msfvar.tar.gz
+wget https://archive.org/download/5.0.23.tar/5.0.23.tar.gz
+##https://github.com/rapid7/metasploit-framework/archive/$msfvar.tar.gz
 tar -xf $msfpath/$msfvar.tar.gz
 mv $msfpath/metasploit-framework-$msfvar $msfpath/metasploit-framework
 cd $msfpath/metasploit-framework
