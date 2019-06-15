@@ -10,7 +10,7 @@ cwd=$(pwd)
 #	exit 1
 #fi
 
-msfvar=5.0.23
+msfvar=5.0.29
 msfpath='/data/data/com.termux/files/home'
 if [ -d "$msfpath/metasploit-framework" ]; then
 	echo "deleting old version..."
@@ -22,8 +22,8 @@ apt install -y ncurses-utils autoconf bison clang coreutils finch curl findutils
 
 ln -sf $PREFIX/include/libxml2/libxml $PREFIX/include/
 cd $msfpath
-wget https://archive.org/download/5.0.23.tar/5.0.23.tar.gz
-##https://github.com/rapid7/metasploit-framework/archive/$msfvar.tar.gz
+#wget https://archive.org/download/5.0.23.tar/5.0.23.tar.gz
+wget https://github.com/rapid7/metasploit-framework/archive/$msfvar.tar.gz
 tar -xf $msfpath/$msfvar.tar.gz
 mv $msfpath/metasploit-framework-$msfvar $msfpath/metasploit-framework
 cd $msfpath/metasploit-framework
