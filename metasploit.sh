@@ -18,7 +18,7 @@ if [ -d "$msfpath/metasploit-framework" ]; then
 fi
 termux-wake-lock
 apt update && apt upgrade -y
-apt install -y ncurses-utils autoconf bison clang coreutils finch curl findutils git apr apr-util libffi-dev libgmp-dev libpcap-dev postgresql-dev readline-dev libsqlite-dev openssl-dev libtool libxml2-dev libxslt-dev ncurses-dev pkg-config wget make ruby-dev libgrpc-dev termux-tools ncurses-utils ncurses unzip zip tar postgresql termux-elf-cleaner libiconv-dev zlib-dev
+apt install -y libcrypt-dev ncurses-utils autoconf bison clang coreutils finch curl findutils git apr apr-util libffi-dev libgmp-dev libpcap-dev postgresql-dev readline-dev libsqlite-dev openssl-dev libtool libxml2-dev libxslt-dev ncurses-dev pkg-config wget make ruby-dev libgrpc-dev termux-tools ncurses-utils ncurses unzip zip tar postgresql termux-elf-cleaner libiconv-dev zlib-dev
 
 ln -sf $PREFIX/include/libxml2/libxml $PREFIX/include/
 cd $msfpath
