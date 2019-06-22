@@ -10,10 +10,16 @@ cwd=$(pwd)
 #	exit 1
 #fi
 ver=`getprop ro.build.version.release | sed -e 's/\.//g' | cut -c1`
+arch=`uname -m`
 if [ $ver -gt 8 ]; then
 	msfvar=5.0.28
 else
+	if [ $arch = aarch64 ]; then
 	msfvar=5.0.29
+else
+	msfvar=5.0.28
+	fi
+
 fi
 msfpath='/data/data/com.termux/files/home'
 if [ -d "$msfpath/metasploit-framework" ]; then
