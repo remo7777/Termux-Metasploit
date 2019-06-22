@@ -9,8 +9,12 @@ cwd=$(pwd)
 #	echo "[-] Please do not use third-party stolen scripts"
 #	exit 1
 #fi
-
-msfvar=5.0.29
+ver=`getprop ro.build.version.release | sed -e 's/\.//g' | cut -c1`
+if [ $ver -gt 8 ]; then
+	msfvar=5.0.28
+else
+	msfvar=5.0.29
+fi
 msfpath='/data/data/com.termux/files/home'
 if [ -d "$msfpath/metasploit-framework" ]; then
 	echo "deleting old version..."
