@@ -15,7 +15,7 @@ if [ $ver -gt 8 ]; then
 	msfvar=5.0.28
 else
 	if [ $arch = aarch64 ]; then
-	msfvar=5.0.29
+	msfvar=5.0.32
 else
 	msfvar=5.0.28
 	fi
