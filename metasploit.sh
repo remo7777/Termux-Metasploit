@@ -9,18 +9,18 @@ cwd=$(pwd)
 #	echo "[-] Please do not use third-party stolen scripts"
 #	exit 1
 #fi
-ver=`getprop ro.build.version.release | sed -e 's/\.//g' | cut -c1`
+#ver=`getprop ro.build.version.release | sed -e 's/\.//g' | cut -c1`
 arch=`uname -m`
-if [ $ver -gt 8 ]; then
-	msfvar=5.0.28
-else
-	if [ $arch = aarch64 ]; then
-	msfvar=5.0.32
-else
-	msfvar=5.0.28
-	fi
+#if [ $ver -gt 8 ]; then
+#	msfvar=5.0.28
+#else
+#	if [ $arch = aarch64 ]; then
+msfvar=5.0.32
+#else
+#	msfvar=5.0.28
+#	fi
 
-fi
+#fi
 msfpath='/data/data/com.termux/files/home'
 if [ -d "$msfpath/metasploit-framework" ]; then
 	echo "deleting old version..."
@@ -28,7 +28,7 @@ if [ -d "$msfpath/metasploit-framework" ]; then
 fi
 termux-wake-lock
 apt update && apt upgrade -y
-apt install -y libcrypt-dev ncurses-utils autoconf bison clang coreutils finch curl findutils git apr apr-util libffi-dev libgmp-dev libpcap-dev postgresql-dev readline-dev libsqlite-dev openssl-dev libtool libxml2-dev libxslt-dev ncurses-dev pkg-config wget make ruby-dev libgrpc-dev termux-tools ncurses-utils ncurses unzip zip tar postgresql termux-elf-cleaner libiconv-dev zlib-dev
+apt install -y apr apr-util autoconf bison clang coreutils curl findutils git libffi libgmp libiconv libpcap libsqlite libtool libxml2 libxslt make ncurses ncurses ncurses-utils openssl pkg-config postgresql readline resolv-conf ruby tar termux-elf-cleaner termux-tools unzip wget zip zlib
 
 ln -sf $PREFIX/include/libxml2/libxml $PREFIX/include/
 cd $msfpath
@@ -42,11 +42,11 @@ gem install pg --version '0.20.0' -- --use-system-libraries
 #gem install nokogiri --version '1.10.1' -- --use-system-libraries
 cd $msfpath/metasploit-framework
 gem update --system
-gem install nokogiri --version '1.10.3' -- --use-system-libraries
+gem install nokogiri --version '1.10.4' -- --use-system-libraries
 isNokogiri=$(gem list nokogiri -i)
-sed 's|nokogiri (1.*)|nokogiri (1.10.3)|g' -i Gemfile.lock
+sed 's|nokogiri (1.*)|nokogiri (1.10.4)|g' -i Gemfile.lock
 if [ $isNokogiri == "false" ]; then
-	gem install nokogiri --version '1.10.3' -- --use-system-libraries
+	gem install nokogiri --version '1.10.4' -- --use-system-libraries
 else
 	echo "$(tput setaf 4)[*] $(tput setaf 3)$(tput bold)nokogiri already installed..$(tput sgr0)"
 fi
@@ -66,7 +66,7 @@ curl https://raw.githubusercontent.com/remo7777/REMO773/master/msfconsole | cat 
 chmod +rwx $PREFIX/bin/msfconsole
 ln -sf $(which msfconsole) $PREFIX/bin/msfvenom
 
-sed -i "s/warn/#warn/g" /data/data/com.termux/files/usr/lib/ruby/2.6.0/bigdecimal.rb
+#sed -i "s/warn/#warn/g" /data/data/com.termux/files/usr/lib/ruby/2.6.0/bigdecimal.rb
 
 termux-elf-cleaner /data/data/com.termux/files/usr/lib/ruby/gems/2.6.0/gems/pg-0.20.0/lib/pg_ext.so
 
@@ -74,7 +74,9 @@ echo "Creating database"
 
 cd $msfpath/metasploit-framework/config
 
-curl -LO https://Auxilus.github.io/database.yml
+curl -LO https://pastebin.com/raw/dqnrvd2p
+
+mv dqnrvd2p database.yml
 
 mkdir -p $PREFIX/var/lib/postgresql
 
@@ -94,7 +96,7 @@ if [ -e ~/.bashrc ]; then
 fi
 curl https://raw.githubusercontent.com/remo7777/REMO773/master/.bashrc | cat >> ~/.bashrc
 case "$(uname -m)" in
-	aarch64)
+	aarch64 | armv8l)
 		echo 'export LD_PRELOAD="${PREFIX}/lib/ruby/2.6.0/aarch64-linux-android/bigdecimal.so:$LD_PRELOAD"' >> ~/.bashrc
 		;;
 	arm*)
