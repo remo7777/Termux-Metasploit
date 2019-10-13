@@ -27,7 +27,7 @@ if [ -d "$msfpath/metasploit-framework" ]; then
         rm $msfpath/metasploit-framework -rf
 fi
 termux-wake-lock
-apt update && apt upgrade -y
+apt update && apt install gnupg && apt update && apt upgrade -y
 apt install -y apr apr-util autoconf bison clang coreutils curl findutils git libffi libgmp libiconv libpcap libsqlite libtool libxml2 libxslt make ncurses ncurses ncurses-utils openssl pkg-config postgresql readline resolv-conf ruby tar termux-elf-cleaner termux-tools unzip wget zip zlib
 
 ln -sf $PREFIX/include/libxml2/libxml $PREFIX/include/
