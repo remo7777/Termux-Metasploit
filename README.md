@@ -1,5 +1,5 @@
 # Termux-Metasploit
-metasploit-framework version 5.0.23-dev for termux
+metasploit-framework version 5.0.53-dev for termux
 
 ## Installation..
 `chmod 777 metasploit.sh`
