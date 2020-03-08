@@ -21,6 +21,7 @@ echo;
 cat $TMPDIR/metasploit.txt;
 echo;
 echo "Dependency packages install"
+sleep 5;
 apt upgrade -y;apt install apr apr-util autoconf bison clang coreutils curl findutils git libffi libgmp libiconv libpcap libsqlite libtool libxml2 libxslt make ncurses ncurses ncurses-utils openssl pkg-config postgresql readline resolv-conf ruby tar termux-elf-cleaner termux-tools unzip wget zip zlib -y;
 echo "[*] Downloading Metasploit Framework..."
 mkdir -p "$TMPDIR"
