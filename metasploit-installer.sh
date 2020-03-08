@@ -17,7 +17,7 @@ if [ "$(id -u)" = "0" ]; then
 fi
 clear
 echo;
-(apt update;apt install wget busybox -y;wget -O $TMPDIR/metasploit.txt https://raw.githubusercontent.com/rapid7/metasploit-framework/master/data/logos/workflow.txt) &> /dev/null
+(apt update;apt install wget busybox -y;wget -O $TMPDIR/metasploit.txt https://raw.githubusercontent.com/remo7777/Termux-Metasploit/master/logo.txt) &> /dev/null
 cat $TMPDIR/metasploit.txt;
 echo;
 echo "Dependency packages install"
