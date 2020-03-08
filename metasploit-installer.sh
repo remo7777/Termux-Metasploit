@@ -86,8 +86,6 @@ rm -rf $PREFIX/bin/{msfconsole,msfd,msfrpc,msfrpcd,msfvenom} > /dev/null 2>&1 ||
 # download file from git msfconsole.sh
 wget -O "$TMPDIR"/msfconsole.sh https://raw.githubusercontent.com/remo7777/Termux-Metasploit/master/msfconsole.sh
 # patch
-sed -i "s%\@TERMUX_PREFIX\@%${PREFIX}%g" \
-	"$PREFIX"/bin/msfconsole
 # Wrapper.
 install -Dm700 "$TMPDIR"/msfconsole.sh \
 	"$PREFIX"/bin/msfconsole
