@@ -9,7 +9,7 @@ export MSF_VERSION=5.0.74
 stty -echo -icanon time 0 min 0 intr undef quit undef susp undef
 
 # Use trap to unlock terminal at exit.
-trap 'while read -r; do true; done; /data/data/com.termux/files/usr sane;' EXIT
+trap "tput reset; tput cnorm; exit" 2
 
 if [ "$(id -u)" = "0" ]; then
 	echo "[!] Do not install Termux packages as root :)"
