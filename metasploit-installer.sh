@@ -2,7 +2,7 @@
 set -e
 export PREFIX=/data/data/com.termux/files/usr
 export TMPDIR=$PREFIX/tmp
-export MSF_VERSION=5.0.21
+export MSF_VERSION=5.0.84
 
 # Lock terminal to prevent sending text input and special key
 # combinations that may break installation process.
