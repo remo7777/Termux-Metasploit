@@ -6,16 +6,16 @@ METASPLOIT_PATH="/data/data/com.termux/files/usr/opt/metasploit-framework"
 # Fix ruby bigdecimal extensions linking error.
 case "$(uname -m)" in
 	aarch64)
-		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.7.0/aarch64-linux-android/bigdecimal.so"
+		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.6.0/aarch64-linux-android/bigdecimal.so"
 		;;
 	arm*)
-		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.7.0/arm-linux-androideabi/bigdecimal.so"
+		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.6.0/arm-linux-androideabi/bigdecimal.so"
 		;;
 	i686)
-		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.7.0/i686-linux-android/bigdecimal.so"
+		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.6.0/i686-linux-android/bigdecimal.so"
 		;;
 	x86_64)
-		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.7.0/x86_64-linux-android/bigdecimal.so"
+		export LD_PRELOAD="$LD_PRELOAD:/data/data/com.termux/files/usr/lib/ruby/2.6.0/x86_64-linux-android/bigdecimal.so"
 		;;
 	*)
 		;;
