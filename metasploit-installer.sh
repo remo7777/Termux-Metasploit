@@ -95,5 +95,5 @@ for i in msfd msfrpc msfrpcd msfvenom; do
 done
 
 echo "[*] Metasploit Framework installation finished."
-
+stty echo
 exit 0
