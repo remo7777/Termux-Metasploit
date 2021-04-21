@@ -29,7 +29,7 @@ echo "│${var3}│"
 echo "│${var3}│"
 echo "└${var2}┘"
 PUT 4 0
-figlet -c -f Remo773 -w ${1} "${2}" | lolcat -t
+echo -e "\e[31m$(figlet -c -f Remo773.flf -w ${1} "${2}")"
 PUT 3 0
 echo -e "\033[34;1m"
 #tput setaf 5
@@ -71,5 +71,8 @@ tput sgr 0
 if [[ ${PROC33} == [Y/y] ]]; then
 	add_repo
 	metasploit
+	#echo -e "\e[1;34m[*] \e[32mHave a good day..\e[0m";
+else
+	echo
 fi
 echo -e "\e[1;34m[*] \e[32mHave a good day..\e[0m";
