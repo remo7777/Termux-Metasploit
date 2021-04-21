@@ -1,0 +1,75 @@
+#!/usr/bin/bash
+col=$(tput cols)
+banner() {
+var=$(echo $(( ${1} - 2)))
+var2=$(seq -s─ ${var}|tr -d '[:digit:]')
+var3=$(seq -s\  ${var}|tr -d '[:digit:]')
+var4=$(echo $(( ${1} - 20)))
+(rm -rf $TMPDIR/.draw.sh) &> /dev/null
+cat >> $TMPDIR/.draw.sh << EOF
+#!/usr/bin/bash
+PUT(){ echo -en "\033[\${1};\${2}H";}
+DRAW(){ echo -en "\033%";echo -en "\033(0";}
+WRITE(){ echo -en "\033(B";}
+HIDECURSOR(){ echo -en "\033[?25l";}
+NORM(){ echo -en "\033[?12l\033[?25h";}
+
+HIDECURSOR
+clear
+echo -e "\033[34;1m"
+#tput setaf 5
+echo "┌${var2}┐"
+echo "│${var3}│"
+echo "│${var3}│"
+#echo "│${var3}│"
+#echo "│${var3}│"
+echo "│${var3}│"
+echo "│${var3}│"
+echo "│${var3}│"
+echo "│${var3}│"
+echo "└${var2}┘"
+PUT 4 0
+figlet -c -f Remo773 -w ${1} "${2}" | lolcat -t
+PUT 3 0
+echo -e "\033[34;1m"
+#tput setaf 5
+echo "│"
+echo "│"
+#echo "│"
+#echo "│"
+echo "│"
+echo "│"
+echo "│"
+#echo "│"
+PUT 8 ${var4}
+echo -e "\e[32mVersion \e[33m6.0.40\e[0m"
+PUT 12 0
+echo
+NORM
+EOF
+bash $TMPDIR/.draw.sh
+}
+add_repo() {
+apt update && apt upgrade -y;apt install coreutils gnupg -yq --silent;
+apt-key add termuxblack.key;
+mkdir -p $PREFIX/etc/apt/sources.list.d
+cp termuxblack.list $PREFIX/etc/apt/sources.list.d/
+}
+metasploit() {
+	bash metasploit-installer.sh
+}
+dependent() {
+	apt update && apt upgrade -y;apt install wget git ncurses-utils curl figlet -y;apt remove ruby -y 
+}
+echo -e "\e[1;34m[*] \e[32minstall packages....\e[0m";
+(dependent) &> /dev/null
+banner ${col} metasploit
+tput setaf 3;
+read -p  "Do you want to setup this ? (y/n) " PROC33
+
+tput sgr 0
+if [[ ${PROC33} == [Y/y] ]]; then
+	add_repo
+	metasploit
+fi
+echo -e "\e[1;34m[*] \e[32mHave a good day..\e[0m";
