@@ -1,13 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/sh
 SCRIPT_NAME=$(basename "$0")
-METASPLOIT_PATH="${HOME}/metasploit-framework"
+METASPLOIT_PATH="${PREFIX}/opt/metasploit-framework"
 
 # set ruby version
 android=$(getprop ro.build.version.release)
 #if [ ${android%%.*} -ge 7 ]; then
 #    RUBYVER=3.0.0
 #else
-    RUBYVER=2.6.0
+    RUBYVER=2.7.0
 #fi
 # Fix ruby bigdecimal extensions linking error.
 case "$(uname -m)" in
@@ -28,7 +28,7 @@ case "$(uname -m)" in
 esac
 case "$SCRIPT_NAME" in
  	msfconsole|msfd|msfrpc|msfrpcd|msfvenom)
-+		pg_ctl --log=$HOME/.log_msf -D $PREFIX/var/lib/postgresql restart &> /dev/null
+		pg_ctl --log=$HOME/.log_msf -D $PREFIX/var/lib/postgresql restart &> /dev/null
 		exec ruby "$METASPLOIT_PATH/$SCRIPT_NAME" "$@"
 		;;
 	*)

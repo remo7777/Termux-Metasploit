@@ -110,10 +110,10 @@ if [ -z "$(psql -l | grep msf_database)" ]; then
 fi
 rm -rf $PREFIX/bin/{msfconsole,msfd,msfrpc,msfrpcd,msfvenom} > /dev/null 2>&1 || true
 # download file from git msfconsole.sh
-wget -O "$TMPDIR"/msfconsole.sh https://raw.githubusercontent.com/remo7777/Termux-Metasploit/master/msfconsole.sh
+#wget -O "$TMPDIR"/msfconsole.sh https://raw.githubusercontent.com/remo7777/Termux-Metasploit/master/msfconsole.sh
 # patch
 # Wrapper.
-install -Dm700 "$TMPDIR"/msfconsole \
+install -Dm700 ./msfconsole \
 	"$PREFIX"/bin/msfconsole
 for i in msfd msfrpc msfrpcd msfvenom; do
 	ln -sfr "$PREFIX"/bin/msfconsole "$PREFIX"/bin/$i
