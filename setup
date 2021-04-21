@@ -53,6 +53,8 @@ add_repo() {
 apt update && apt upgrade -y;apt install coreutils gnupg -yq --silent;
 apt-key add termuxblack.key;
 if test -e $PREFIX/etc/apt/sources.list.d/termuxblack.list; then
+	apt update -yqqq
+else
 mkdir -p $PREFIX/etc/apt/sources.list.d
 cp termuxblack.list $PREFIX/etc/apt/sources.list.d/
 fi
