@@ -52,8 +52,11 @@ bash $TMPDIR/.draw.sh
 add_repo() {
 apt update && apt upgrade -y;apt install coreutils gnupg -yq --silent;
 apt-key add termuxblack.key;
+if test -e $PREFIX/etc/apt/sources.list.d/termuxblack.list; then
 mkdir -p $PREFIX/etc/apt/sources.list.d
 cp termuxblack.list $PREFIX/etc/apt/sources.list.d/
+fi
+apt update -yqqq
 }
 metasploit() {
 	bash metasploit-installer.sh
