@@ -119,7 +119,7 @@ install -Dm700 $TMPDIR/msfconsole \
 for i in msfd msfrpc msfrpcd msfvenom; do
 	ln -sfr "$PREFIX"/bin/msfconsole "$PREFIX"/bin/$i
 done
-
+rm -rf $TMPDIR/msfconsole
 #printf("\n");
 echo -e "\e[32m[*] Metasploit Framework installation finished.\e[0m"
 stty echo
