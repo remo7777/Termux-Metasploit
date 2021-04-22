@@ -62,6 +62,8 @@ echo -e "\e[32m[*] Extracting new version of Metasploit Framework...\e[0m"
 mkdir -p "$PREFIX"/opt/metasploit-framework
 tar zxf "$TMPDIR/metasploit-$MSF_VERSION.tar.gz" --strip-components=1 \
 	-C "$PREFIX"/opt/metasploit-framework
+sleep 2
+rm -rf $TMPDIR/metasploit-$MSF_VERSION.tar.gz
 
 echo -e "\e[32m[*] Installing 'rubygems-update' if necessary..."
 if [ "$(gem list -i rubygems-update 2>/dev/null)" = "false" ]; then
