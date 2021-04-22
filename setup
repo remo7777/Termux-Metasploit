@@ -42,7 +42,7 @@ echo "│"
 echo "│"
 #echo "│"
 PUT 8 ${var4}
-echo -e "\e[32mVersion \e[33m6.0.40\e[0m"
+echo -e "\e[32mVersion \e[33m5.0.84\e[0m"
 PUT 12 0
 echo
 NORM
