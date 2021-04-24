@@ -1,5 +1,5 @@
 # Termux-Metasploit
-metasploit-framework versio 6.0.8
+metasploit-framework versio 6.0.24
 
 ## Installation..
 ```

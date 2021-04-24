@@ -2,7 +2,7 @@
 set -e
 export PREFIX=/data/data/com.termux/files/usr
 export TMPDIR=$PREFIX/tmp
-export MSF_VERSION=6.0.8
+export MSF_VERSION=6.0.24
 progress() {
 
 local pid=$!
