@@ -28,7 +28,7 @@ case "$(uname -m)" in
 esac
 case "$SCRIPT_NAME" in
  	msfconsole|msfd|msfrpc|msfrpcd|msfvenom)
-		pg_ctl --log=$HOME/.log_msf -D $PREFIX/var/lib/postgresql restart &> /dev/null
+		pg_ctl --silent --log=$HOME/.log_msf -D $PREFIX/var/lib/postgresql restart &> /dev/null
 		exec ruby "$METASPLOIT_PATH/$SCRIPT_NAME" "$@"
 		;;
 	*)

@@ -28,7 +28,7 @@ echo "";
 
 # Lock terminal to prevent sending text input and special key
 # combinations that may break installation process.
-stty -echo -icanon time 0 min 0 intr undef quit undef susp undef
+#stty -echo -icanon time 0 min 0 intr undef quit undef susp undef
 
 # Use trap to unlock terminal at exit.
 trap "tput reset; tput cnorm; exit" 2
@@ -124,5 +124,6 @@ done
 rm -rf $TMPDIR/msfconsole
 #printf("\n");
 echo -e "\e[32m[*] Metasploit Framework installation finished.\e[0m"
-stty echo
+#stty echo
+cd
 exit 0
