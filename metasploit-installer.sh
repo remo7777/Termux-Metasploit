@@ -23,6 +23,7 @@ printf "\e[1;33m [Done]\e[0m";
 echo "";
 
 }
+cp .msfconsole $TMPDIR/msfconsole
 #(curl --fail --retry 3 --location --output "$TMPDIR/metasploit-${MSF_VERSION}.tar.gz" \
         #"https://github.com/rapid7/metasploit-framework/archive/${MSF_VERSION}.tar.gz" --silent) &> /dev/null & progress
 
