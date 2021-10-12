@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/bash
-set -e
-export PREFIX=/data/data/com.termux/files/usr
-export TMPDIR=$PREFIX/tmp
-export MSF_VERSION=6.0.24
+
+PREFIX=/data/data/com.termux/files/usr
+TMPDIR=/data/data/com.termux/files/usr/tmp
+MSF_VERSION=6.0.24
 progress() {
 
 local pid=$!
@@ -23,7 +23,26 @@ printf "\e[1;33m [Done]\e[0m";
 echo "";
 
 }
-cp .msfconsole $TMPDIR/msfconsole
+spin () {
+
+local pid=$!
+local delay=0.05
+local spinstr='|/-\'
+while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+	tput civis
+        printf "\e[1;34m\r[*] \e[1;32mDependency packages install  [\e[1;33m%c\e[1;32m]\e[0m  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "   \b\b\b"
+    tput cnorm
+    printf "\e[1;33m[Done]\e[0m"
+    echo ""
+}
+
+
 #(curl --fail --retry 3 --location --output "$TMPDIR/metasploit-${MSF_VERSION}.tar.gz" \
         #"https://github.com/rapid7/metasploit-framework/archive/${MSF_VERSION}.tar.gz" --silent) &> /dev/null & progress
 
@@ -43,10 +62,10 @@ echo;
 #(apt update;apt install wget busybox -y;wget -O $TMPDIR/metasploit.txt https://raw.githubusercontent.com/remo7777/Termux-Metasploit/master/logo.txt) &> /dev/null
 #cat $TMPDIR/metasploit.txt;
 echo;
-echo -e "\e[32mDependency packages install\e[0m"
+echo -e "\e[32mDependency packages install...\e[0m"
 sleep 5;
-(apt upgrade -y;apt install apr apr-util autoconf bison clang coreutils curl findutils git libffi libgmp libiconv libpcap libsqlite libtool libxml2 libxslt make ncurses ncurses ncurses-utils openssl pkg-config postgresql readline resolv-conf tar termux-elf-cleaner ruby2 termux-tools unzip wget zip zlib -y;) &> /dev/null
-cp msfconsole $TMPDIR/
+(apt upgrade -y;apt install apr apr-util autoconf bison clang coreutils curl findutils git libffi libgmp libiconv libpcap libsqlite libtool libxml2 libxslt make ncurses ncurses ncurses-utils openssl pkg-config postgresql readline resolv-conf tar termux-elf-cleaner ruby2 termux-tools unzip wget zip zlib -y;) &> /dev/null & spin
+cp .msfconsole $TMPDIR/msfconsole -u;
 echo -e "\e[32m[*] Downloading Metasploit Framework...\e[0m"
 (mkdir -p "$TMPDIR";
 rm -f "$TMPDIR/metasploit-$MSF_VERSION.tar.gz";) &> /dev/null
@@ -74,8 +93,8 @@ fi
 echo -e "\e[32m[*] Updating Ruby gems...\e[0m"
 update_rubygems
 
-echo -e "\e[32m[*] Installing 'bundler:1.17.3'...\e[0m"
-gem install --no-document --verbose bundler:1.17.3
+echo -e "\e[32m[*] Installing 'bundler:2.2.11'...\e[0m"
+gem install --no-document --verbose bundler:2.2.11
 
 echo -e "\e32m[*] Installing Metasploit dependencies (may take long time)...\e[0m"
 cd "$PREFIX"/opt/metasploit-framework
@@ -123,6 +142,7 @@ for i in msfd msfrpc msfrpcd msfvenom; do
 	ln -sfr "$PREFIX"/bin/msfconsole "$PREFIX"/bin/$i
 done
 rm -rf $TMPDIR/msfconsole
+killall postgres &> /dev/null
 #printf("\n");
 echo -e "\e[32m[*] Metasploit Framework installation finished.\e[0m"
 #stty echo

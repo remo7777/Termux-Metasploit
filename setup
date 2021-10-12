@@ -49,6 +49,24 @@ NORM
 EOF
 bash $TMPDIR/.draw.sh
 }
+spin () {
+
+local pid=$!
+local delay=0.05
+local spinstr='|/-\'
+while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        tput civis
+        printf "\e[1;34m\r[*] \e[1;32minstall packages...  [\e[1;33m%c\e[1;32m]\e[0m  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "   \b\b\b"
+    tput cnorm
+    printf "\e[1;33m[Done]\e[0m"
+    echo ""
+}
 add_repo() {
 apt update && apt upgrade -y;apt install coreutils gnupg -yq --silent;
 apt-key add termuxblack.key;
@@ -66,8 +84,8 @@ metasploit() {
 dependent() {
 	apt update && apt upgrade -y;apt install wget git ncurses-utils curl figlet -y;apt remove ruby -y 
 }
-echo -e "\e[1;34m[*] \e[32minstall packages....\e[0m";
-(dependent) &> /dev/null
+#echo -e "\e[1;34m[*] \e[32minstall packages....\e[0m";
+(dependent) &> /dev/null & spin
 banner ${col} metasploit
 tput setaf 3;
 read -p  "Do you want to setup this ? (y/n) " PROC33
