@@ -65,7 +65,7 @@ echo;
 echo -e "\e[32mDependency packages install...\e[0m"
 sleep 5;
 (apt upgrade -y;apt install apr apr-util autoconf bison clang coreutils curl findutils git libffi libgmp libiconv libpcap libsqlite libtool libxml2 libxslt make ncurses ncurses ncurses-utils openssl pkg-config postgresql readline resolv-conf tar termux-elf-cleaner ruby2 termux-tools unzip wget zip zlib -y;) &> /dev/null & spin
-cp .msfconsole $TMPDIR/msfconsole -u;
+#cp .msfconsole $TMPDIR/msfconsole -u;
 echo -e "\e[32m[*] Downloading Metasploit Framework...\e[0m"
 (mkdir -p "$TMPDIR";
 rm -f "$TMPDIR/metasploit-$MSF_VERSION.tar.gz";) &> /dev/null
@@ -138,6 +138,7 @@ rm -rf $PREFIX/bin/{msfconsole,msfd,msfrpc,msfrpcd,msfvenom} > /dev/null 2>&1 ||
 # Wrapper.
 install -Dm700 $TMPDIR/msfconsole \
 	"$PREFIX"/bin/msfconsole
+chmod 700 $PREFIX"/bin/msfconsole;
 for i in msfd msfrpc msfrpcd msfvenom; do
 	ln -sfr "$PREFIX"/bin/msfconsole "$PREFIX"/bin/$i
 done
