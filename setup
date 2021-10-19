@@ -52,8 +52,8 @@ bash $TMPDIR/.draw.sh
 }
 }
 spin () {
-local HIDECURSOR(){ echo -en "\033[?25l";}
-local NORM(){ echo -en "\033[?12l\033[?25h";}
+HIDECURSOR(){ echo -en "\033[?25l";}
+NORM(){ echo -en "\033[?12l\033[?25h";}
 local pid=$!
 local delay=0.05
 local spinstr='|/-\'
