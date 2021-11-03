@@ -138,7 +138,7 @@ rm -rf $PREFIX/bin/{msfconsole,msfd,msfrpc,msfrpcd,msfvenom} > /dev/null 2>&1 ||
 # Wrapper.
 install -Dm700 $TMPDIR/msfconsole \
 	"$PREFIX"/bin/msfconsole
-chmod 700 $PREFIX"/bin/msfconsole;
+#chmod 700 $PREFIX"/bin/msfconsole;
 for i in msfd msfrpc msfrpcd msfvenom; do
 	ln -sfr "$PREFIX"/bin/msfconsole "$PREFIX"/bin/$i
 done
