@@ -80,6 +80,8 @@ mkdir -p $PREFIX/etc/apt/sources.list.d
 cp termuxblack.list $PREFIX/etc/apt/sources.list.d/
 fi
 apt update -yqqq
+cp -r $PREFIX/etc/apt/trusted.gpg $PREFIX/etc/apt/trusted.gpg.d/trusted.termuxblack.gpg
+apt update -yqqq
 }
 metasploit() {
 	bash metasploit-installer.sh
