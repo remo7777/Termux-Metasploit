@@ -1,0 +1,144 @@
+
+user="$(mktemp)"
+figftemp="$(mktemp)"
+logotemp="$(mktemp)"
+VAR4=$(echo $(($(stty size | cut -d ' ' -f 2) - 30)))
+PUT() { echo -en "\033[${1};${2}H"; }
+DRAW() {
+    echo -en "\033%"
+    echo -en "\033(0"
+}
+WRITE() { echo -en "\033(B"; }
+HIDECURSOR() { echo -en "\033[?25l"; }
+NORM() { echo -en "\033[?12l\033[?25h"; }
+
+base64 -d >"$logotemp" <<'EOF'
+G1s0OW0gICAgIBtbMzg7MjsxMDsxMTk7MTg0beKWhBtbMzg7MjsxMDsxMTk7MTg0beKWhBtbMzg7
+MjsxMTsxMTk7MTg0beKWhBtbMzg7Mjs0MDsxMDE7MTQ1beKWhBtbMzg7Mjs0MDsxMDE7MTQ1beKW
+hBtbMzg7MjszOTsxMDE7MTQ1beKWhCAgICAgG1swbQobWzQ5bSAgIBtbMzg7MjsxNjsxMjI7MTg1
+OzQ4OzI7MTE7MTE5OzE4NG3ilpcbWzM4OzI7MjU1OzI1NTsyNTU7NDg7MjsxMTsxMTk7MTg0beKW
+hBtbMzg7MjsyMzQ7MjQzOzI0OW3iloQbWzM4OzI7OTM7MTY1OzIwODs0ODsyOzE1OzEyMTsxODVt
+4paWG1s0ODsyOzExOzExOTsxODRtIBtbNDg7Mjs0MDsxMDE7MTQ1bSAbWzM4OzI7MTA2OzE0ODsx
+Nzk7NDg7Mjs0MjsxMDI7MTQ2beKWlxtbMzg7MjsyMzM7MjM5OzI0Mzs0ODsyOzQwOzEwMTsxNDVt
+4paEG1szODsyOzI1NDsyNTQ7MjU0beKWhBtbNDg7Mjs0MDsxMDE7MTQ1bSAbWzQ5bSAbWzQ5bSAg
+G1swbQobWzQ5bSAgIBtbMzg7MjsxMTsxMTk7MTg0OzQ4OzI7MTY7MTIyOzE4NW3ilowbWzQ4OzI7
+MjU1OzI1NTsyNTVtIBtbMzg7MjsxODc7MjE3OzIzNW3ilpcbWzM4OzI7MjU1OzI1NTsyNTU7NDg7
+MjsyMzU7MjQ0OzI0OW3ilpobWzM4OzI7MjQ2OzI1MDsyNTI7NDg7Mjs4MjsxNTQ7MjAxbeKWhBtb
+Mzg7MjsyNDQ7MjQ3OzI0OTs0ODsyOzk0OzEzODsxNzBt4paEG1szODsyOzIyNTsyMzM7MjM5OzQ4
+OzI7MjUyOzI1MzsyNTNt4paYG1szODsyOzE5ODsyMTQ7MjI2OzQ4OzI7MjU0OzI1NDsyNTRt4paW
+G1szODsyOzI1NTsyNTU7MjU1OzQ4OzI7MjUzOzI1NDsyNTRt4paMG1s0ODsyOzQwOzEwMTsxNDVt
+IBtbNDltIBtbNDltICAbWzBtChtbNDltICAgG1szODsyOzExOzExOTsxODQ7NDg7MjsxNjsxMjI7
+MTg1beKWjBtbNDg7MjsyNTU7MjU1OzI1NW0gG1szODsyOzI1NTsyNTU7MjU1OzQ4OzI7OTI7MTY0
+OzIwOG3ilowbWzM4OzI7MTQ1OzE5NDsyMjM7NDg7MjsyNDsxMjQ7MTg2beKWnRtbMzg7MjsyNTQ7
+MjU0OzI1NDs0ODsyOzI1NTsyNTU7MjU1beKWlhtbNDg7MjsyNDk7MjUxOzI1Mm3ilp0bWzM4OzI7
+MTU4OzE4NjsyMDU7NDg7Mjs1MDsxMDc7MTQ5beKWmBtbMzg7MjsxMTA7MTUxOzE4MTs0ODsyOzI1
+MzsyNTQ7MjU0beKWjBtbMzg7MjsyNTU7MjU1OzI1NW3ilowbWzQ4OzI7NDA7MTAxOzE0NW0gG1s0
+OW0gICAbWzBtChtbNDltICAgG1szODsyOzE1OzEyMTsxODU7NDg7MjsxMTsxMTk7MTgzbeKWnRtb
+Mzg7MjsxNzA7MjA3OzIzMDs0ODsyOzI1NDsyNTQ7MjU1beKWlhtbMzg7MjsyNTU7MjU1OzI1NTs0
+ODsyOzkyOzE2NDsyMDht4paMG1s0ODsyOzExOzExOTsxODRtIBtbMzg7Mjs5MjsxNjQ7MjA3OzQ4
+OzI7MjU0OzI1NDsyNTRt4paEG1szODsyOzEwOTsxNTE7MTgwOzQ4OzI7MjQ5OzI1MTsyNTJt4paE
+G1s0ODsyOzQwOzEwMTsxNDVtIBtbMzg7MjsxMTA7MTUxOzE4MTs0ODsyOzI1MzsyNTQ7MjU0beKW
+jBtbMzg7MjsxNzU7MTk3OzIxNG3ilpcbWzM4OzI7Mzk7MTAxOzE0NTs0ODsyOzQwOzEwMTsxNDVt
+4padG1s0OW0gICAbWzBtChtbNDltICAgG1szODsyOzEyOzEyMDsxODVt4paAG1szODsyOzExMzsx
+NzY7MjE0OzQ4OzI7MTU7MTIwOzE4Nm3ilp0bWzM4OzI7MjMzOzI0MzsyNDk7NDg7Mjs1NjsxNDA7
+MTk0beKWmBtbNDg7MjsxMTsxMTk7MTg0bSAgG1s0ODsyOzQwOzEwMTsxNDVtICAbWzM4OzI7MjM3
+OzI0MjsyNDY7NDg7Mjs3NzsxMjU7MTYybeKWnRtbMzg7MjsxMzM7MTY4OzE5Mzs0ODsyOzQ0OzEw
+MzsxNDdt4paYG1szODsyOzM5OzEwMjsxNDU7NDlt4paAG1s0OW0gICAbWzBtChtbNDltICAgICAb
+WzM4OzI7MTE7MTE5OzE4M23iloAbWzQ4OzI7MTE7MTE5OzE4NG0gG1s0ODsyOzExOzExOTsxODRt
+IBtbNDg7Mjs0MDsxMDE7MTQ1bSAbWzM4OzI7MjY7Njc7MTgyOzQ4OzI7NDA7MTAxOzE0NW3ilpcb
+WzM4OzI7NDA7MTAwOzE0NDs0OW3iloAbWzQ5bSAbWzQ5bSAgICAbWzBtChtbNDltICAgICAgIBtb
+Mzg7Mjs4OzExODsxODFt4paAG1szODsyOzM5OzEwMzsxNDRt4paAICAgICAgIBtbMG0K
+EOF
+base64 -d >"$figftemp" <<'EOF'
+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
+EOF
+print_center_file() {
+    local file="$1"
+    local content
+    if [[ -f "$file" ]]; then
+        content=$(sed "s/\x1B\[[^0-9;]*[mGK]//g" "$file")
+    else
+        echo "Error: File '$file' not found."
+        return 1
+    fi
+    local prefix="   " # 3 spaces
+    while IFS= read -r line; do
+        printf "%s%s\n" "$prefix" "$line"
+    done <<<"$content"
+}
+
+print_prefixed_file() {
+    local file="$1"
+    local content
+    if [[ -f "$file" ]]; then
+        content=$(sed "s/\x1B\[[^0-9;]*[mGK]//g" "$file")
+    else
+        echo "Error: File '$file' not found."
+        return 1
+    fi
+    local prefix="                   " # 15 spaces
+    while IFS= read -r line; do
+        printf "%s%s\n" "$prefix" "$line"
+    done <<<"$content"
+}
+# ${1}=figlet, ${2}=logo
+banner() {
+    HIDECURSOR
+    clear
+    echo -e "\033[35;1m"
+    PUT 0 0
+    echo "┌$(seq -s─ $(($(stty size | cut -d ' ' -f 2) - 1)) | tr -d '[:digit:]')┐"
+    for ((i = 1; i <= 8; i++)); do
+        echo "│$(seq -s\  $(($(stty size | cut -d ' ' -f 2) - 1)) | tr -d '[:digit:]')│"
+    done
+    echo "└$(seq -s─ $(($(stty size | cut -d ' ' -f 2) - 1)) | tr -d '[:digit:]')┘"
+    PUT 5 0
+    print_prefixed_file "${1}"
+    PUT 2 0
+    print_center_file "${2}"
+    PUT 1 0
+    echo -e "\033[35;1m"
+    for ((i = 1; i <= 8; i++)); do
+        echo "│"
+    done
+    PUT 9 ${VAR4}
+    echo -e "\e[32mMSF v\e[33m${MSF_VERSION} \e[32mSetup Script \e[33m3.0\e[0m"
+    PUT 10 0
+    echo
+    NORM
+}

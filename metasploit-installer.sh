@@ -1,151 +1,111 @@
 #!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
 
-PREFIX=/data/data/com.termux/files/usr
-TMPDIR=/data/data/com.termux/files/usr/tmp
-MSF_VERSION=6.0.24
-progress() {
+PREFIX=${PREFIX:-/data/data/com.termux/files/usr}
+MSF_DIR="$PREFIX/opt/metasploit-framework"
+TMPDIR="$PREFIX/tmp/"
+MSF_VERSION=6.4.85
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LIB_DIR="$SCRIPT_DIR/lib"
 
-local pid=$!
-local delay=0.25
-while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+FILES=(pbanner progress)
 
-        for i in "$(if test -e $TMPDIR/*.gz; then cd $TMPDIR/;du -h *.gz | awk '{print $1}';fi)"
-do
-        tput civis
-        echo -ne "\033[34m\r[*] Downloading...\e[33m[\033[36mMetasploit-${MSF_VERSION} \033[32m$i\033[33m]\033[0m   ";
-        sleep $delay
-        printf "\b\b\b\b\b\b\b\b";
+for f in "${FILES[@]}"; do
+  if [[ -f "$LIB_DIR/$f" ]]; then
+    . "$LIB_DIR/$f"
+  else
+    echo "Warning: $LIB_DIR/$f not found"
+  fi
 done
-done
-printf "   \b\b\b\b\b"
-tput cnorm
-printf "\e[1;33m [Done]\e[0m";
-echo "";
 
-}
-spin () {
+# ---------- Helpers ----------
+msg() { echo -e "\n[\e[32m✔\e[0m] $1"; }
 
-local pid=$!
-local delay=0.05
-local spinstr='|/-\'
-while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-	tput civis
-        printf "\e[1;34m\r[*] \e[1;32mDependency packages install  [\e[1;33m%c\e[1;32m]\e[0m  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\b\b\b"
-    done
-    printf "   \b\b\b"
-    tput cnorm
-    printf "\e[1;33m[Done]\e[0m"
-    echo ""
+# ---------- Steps ----------
+update_system() {
+  # msg "Updating packages"
+  (pkg update -y && pkg upgrade -y -o Dpkg::Options::="--force-confnew") &>/dev/null &
+  spin22 "Packages" " \bDone " "Update & Upgrade"
 }
 
+install_deps() {
+  # msg "Installing dependencies"
+  (pkg install -y python ruby git curl wget make clang autoconf bison \
+    coreutils ncurses ncurses-utils termux-tools binutils \
+    libffi libgmp libpcap libsqlite libgrpc libtool libxml2 libxslt \
+    openssl readline apr apr-util postgresql unzip zip tar \
+    termux-elf-cleaner pkg-config) &>/dev/null &
+  spin22 "Packages" " \bDone " "Installing"
+  pip install --no-cache-dir requests &>/dev/null
+}
 
-#(curl --fail --retry 3 --location --output "$TMPDIR/metasploit-${MSF_VERSION}.tar.gz" \
-        #"https://github.com/rapid7/metasploit-framework/archive/${MSF_VERSION}.tar.gz" --silent) &> /dev/null & progress
+fetch_msf() {
+  msg "Cloning Metasploit"
+  rm -rf "$MSF_DIR"
+  # git clone --depth=1 https://github.com/rapid7/metasploit-framework "$MSF_DIR"
+  (curl --fail --retry 3 --location --output "$TMPDIR/metasploit-${MSF_VERSION}.tar.gz" \
+    "https://github.com/rapid7/metasploit-framework/archive/${MSF_VERSION}.tar.gz" --silent) &>/dev/null &
+  progress "metasploit-$MSF_VERSION"
+  echo -e "\e[32m[*] Extracting new version of Metasploit Framework...\e[0m"
+  mkdir -p "$MSF_DIR"
+  tar zxf "$TMPDIR/metasploit-$MSF_VERSION.tar.gz" --strip-components=1 \
+    -C "$MSF_DIR"
+  sleep 2
+  rm -rf $TMPDIR/metasploit-$MSF_VERSION.tar.gz
+}
 
-# Lock terminal to prevent sending text input and special key
-# combinations that may break installation process.
-#stty -echo -icanon time 0 min 0 intr undef quit undef susp undef
+setup_ruby() {
+  msg "Installing Ruby gems"
+  # Update RubyGems
+  gem update --system --quiet
+  # Ensure bundler is installed
+  if ! gem list bundler -i >/dev/null 2>&1; then
+    msg "Installing bundler..."
+    gem install bundler --no-document
+  else
+    msg "Bundler already installed: $(bundle -v)"
+  fi
+  # Enter project directory
+  cd "$MSF_DIR" || { msg "❌ Could not enter $MSF_DIR"; return 1; }
+  # Extract nokogiri version from Gemfile.lock
+  local NOKOGIRI_VERSION
+  NOKOGIRI_VERSION=$(grep -E "nokogiri \([0-9]" Gemfile.lock \
+    | head -n1 \
+    | sed -E "s/.*\(([0-9.]+)\).*/\1/")
+  if [ -n "$NOKOGIRI_VERSION" ]; then
+    msg "Installing nokogiri v$NOKOGIRI_VERSION with CFLAGS workaround..."
+    gem install nokogiri -v "$NOKOGIRI_VERSION" -- \
+      --with-cflags="-Wno-implicit-function-declaration -Wno-deprecated-declarations -Wno-incompatible-function-pointer-types" \
+      --use-system-libraries
+  else
+    msg "⚠️ Nokogiri version not found in Gemfile.lock, skipping direct install"
+  fi
+  # Install and update dependencies inside MSF directory
+  bundle install -j"$(nproc --all)" --quiet
+  gem install actionpack --no-document
+  bundle update activesupport
+  bundle update --bundler
+  bundle install -j"$(nproc --all)" --quiet
+  msg "✔ Ruby gems installed successfully"
+}
 
+symlinks() {
+  msg "Linking executables"
+  for f in msfconsole msfvenom msfrpcd; do ln -sf "$MSF_DIR/$f" "$PREFIX/bin/$f"; done
+  termux-elf-cleaner "$PREFIX"/lib/ruby/gems/*/gems/pg-*/lib/pg_ext.so || true
+}
+
+# ---------- Main ----------
 # Use trap to unlock terminal at exit.
-trap "tput reset; tput cnorm; exit" 2
-
-if [ "$(id -u)" = "0" ]; then
-	echo "[!] Do not install Termux packages as root :)"
-	exit 1
-fi
-clear
-echo;
-#(apt update;apt install wget busybox -y;wget -O $TMPDIR/metasploit.txt https://raw.githubusercontent.com/remo7777/Termux-Metasploit/master/logo.txt) &> /dev/null
-#cat $TMPDIR/metasploit.txt;
-echo;
-echo -e "\e[32mDependency packages install...\e[0m"
-sleep 5;
-(apt upgrade -y;apt install apr apr-util autoconf bison clang coreutils curl findutils git libffi libgmp libiconv libpcap libsqlite libtool libxml2 libxslt make ncurses ncurses ncurses-utils openssl pkg-config postgresql readline resolv-conf tar termux-elf-cleaner ruby2 termux-tools unzip wget zip zlib openssl-1.1 -y;ln -sf $PREFIX/lib/openssl-1.1/*.so.1.1 $PREFIX/lib/;) &> /dev/null & spin
-#cp .msfconsole $TMPDIR/msfconsole -u;
-echo -e "\e[32m[*] Downloading Metasploit Framework...\e[0m"
-(mkdir -p "$TMPDIR";
-rm -f "$TMPDIR/metasploit-$MSF_VERSION.tar.gz";) &> /dev/null
-
-#curl --fail --retry 3 --location --output "$TMPDIR/metasploit-$MSF_VERSION.tar.gz" \
-	#"https://github.com/rapid7/metasploit-framework/archive/$MSF_VERSION.tar.gz"
-(curl --fail --retry 3 --location --output "$TMPDIR/metasploit-${MSF_VERSION}.tar.gz" \
-        "https://github.com/rapid7/metasploit-framework/archive/${MSF_VERSION}.tar.gz" --silent) &> /dev/null & progress
-
-echo -e "\e[32m[*] Removing previous version Metasploit Framework...\e[0m"
-rm -rf "$PREFIX"/opt/metasploit-framework
-
-echo -e "\e[32m[*] Extracting new version of Metasploit Framework...\e[0m"
-mkdir -p "$PREFIX"/opt/metasploit-framework
-tar zxf "$TMPDIR/metasploit-$MSF_VERSION.tar.gz" --strip-components=1 \
-	-C "$PREFIX"/opt/metasploit-framework
-sleep 2
-rm -rf $TMPDIR/metasploit-$MSF_VERSION.tar.gz
-
-echo -e "\e[32m[*] Installing 'rubygems-update' if necessary..."
-if [ "$(gem list -i rubygems-update 2>/dev/null)" = "false" ]; then
-	gem install --no-document --verbose rubygems-update
-fi
-
-echo -e "\e[32m[*] Updating Ruby gems...\e[0m"
-update_rubygems
-
-echo -e "\e[32m[*] Installing 'bundler:2.2.11'...\e[0m"
-gem install --no-document --verbose bundler:2.2.11
-
-echo -e "\e32m[*] Installing Metasploit dependencies (may take long time)...\e[0m"
-cd "$PREFIX"/opt/metasploit-framework
-bundle config build.nokogiri --use-system-libraries
-bundle install --jobs=2 --verbose
-
-echo -e "\e[32m[*] Running fixes...\e[0m"
-sed -i "s@/etc/resolv.conf@$PREFIX/etc/resolv.conf@g" "$PREFIX"/opt/metasploit-framework/lib/net/dns/resolver.rb
-find "$PREFIX"/opt/metasploit-framework -type f -executable -print0 | xargs -0 -r termux-fix-shebang
-find "$PREFIX"/lib/ruby/gems -type f -iname \*.so -print0 | xargs -0 -r termux-elf-cleaner
-
-echo -e "\e[32m[*] Setting up PostgreSQL database...\e[0m"
-mkdir -p "$PREFIX"/opt/metasploit-framework/config
-cat <<- EOF > "$PREFIX"/opt/metasploit-framework/config/database.yml
-production:
-  adapter: postgresql
-  database: msf_database
-  username: msf
-  password:
-  host: 127.0.0.1
-  port: 5432
-  pool: 75
-  timeout: 5
-EOF
-mkdir -p "$PREFIX"/var/lib/postgresql
-pg_ctl -D "$PREFIX"/var/lib/postgresql stop > /dev/null 2>&1 || true
-if ! pg_ctl -D "$PREFIX"/var/lib/postgresql start --silent; then
-    initdb "$PREFIX"/var/lib/postgresql
-    pg_ctl -D "$PREFIX"/var/lib/postgresql start --silent
-fi
-if [ -z "$(psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='msf'")" ]; then
-    createuser msf
-fi
-if [ -z "$(psql -l | grep msf_database)" ]; then
-    createdb msf_database
-fi
-rm -rf $PREFIX/bin/{msfconsole,msfd,msfrpc,msfrpcd,msfvenom} > /dev/null 2>&1 || true
-# download file from git msfconsole.sh
-#wget -O "$TMPDIR"/msfconsole.sh https://raw.githubusercontent.com/remo7777/Termux-Metasploit/master/msfconsole.sh
-# patch
-# Wrapper.
-install -Dm700 $TMPDIR/msfconsole \
-	"$PREFIX"/bin/msfconsole
-#chmod 700 $PREFIX"/bin/msfconsole;
-for i in msfd msfrpc msfrpcd msfvenom; do
-	ln -sfr "$PREFIX"/bin/msfconsole "$PREFIX"/bin/$i
-done
-rm -rf $TMPDIR/msfconsole
-killall postgres &> /dev/null
-#printf("\n");
-echo -e "\e[32m[*] Metasploit Framework installation finished.\e[0m"
-#stty echo
-cd
-exit 0
+trap "NORM; exit" 2
+banner "${figftemp}" "${logotemp}" >>${user}
+cat "${user}"
+echo ""
+# check_internet
+update_system
+install_deps
+fetch_msf
+setup_ruby
+symlinks
+echo ""
+msg "Done! Run: msfconsole"
