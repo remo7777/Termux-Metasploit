@@ -95,6 +95,57 @@ symlinks() {
   termux-elf-cleaner "$PREFIX"/lib/ruby/gems/*/gems/pg-*/lib/pg_ext.so || true
 }
 
+postgres_db() {
+    LOGFILE="$HOME/.pg_msf.log"
+
+    echo -e "\e[32m[*] Running fixes...\e[0m"
+    sed -i "s@/etc/resolv.conf@$PREFIX/etc/resolv.conf@g" \
+        "$PREFIX"/opt/metasploit-framework/lib/net/dns/resolver.rb
+
+    echo -e "\e[32m[*] Cleaning old PostgreSQL cluster...\e[0m"
+    pg_ctl -D "$PREFIX"/var/lib/postgresql stop > /dev/null 2>&1 || true
+    rm -rf "$PREFIX"/var/lib/postgresql/*
+    mkdir -p "$PREFIX"/var/lib/postgresql
+
+    echo -e "\e[32m[*] Initializing new PostgreSQL cluster...\e[0m"
+    initdb "$PREFIX"/var/lib/postgresql \
+        --username=msf_user \
+        --pwfile=<(echo 123456) \
+        --auth=trust
+
+    echo -e "\e[32m[*] Starting PostgreSQL...\e[0m"
+    pg_ctl -D "$PREFIX"/var/lib/postgresql start -l "$LOGFILE" -o "-c logging_collector=off"
+
+    echo -e "\e[32m[*] Creating Metasploit database.yml...\e[0m"
+    mkdir -p "$MSF_DIR"/config
+    cat <<- EOF > "$MSF_DIR"/config/database.yml
+    development:
+      adapter: "postgresql"
+      database: "msf_database"
+      username: "msf_user"
+      password: "123456"
+      port: 5432
+      host: "localhost"
+      pool: 256
+      timeout: 5
+
+    production:
+      adapter: "postgresql"
+      database: "msf_database"
+      username: "msf_user"
+      password: "123456"
+      port: 5432
+      host: "localhost"
+      pool: 256
+      timeout: 5
+EOF
+
+    echo -e "\e[32m[*] Creating msf_database...\e[0m"
+    createdb -O msf_user msf_database -U msf_user
+
+    echo -e "\e[32m[*] PostgreSQL setup complete. Logs: $LOGFILE\e[0m"
+    echo -e "\e[32m[*] Run 'msfconsole' and use 'db_status' to verify.\e[0m"
+}
 # ---------- Main ----------
 # Use trap to unlock terminal at exit.
 trap "NORM; exit" 2
@@ -107,5 +158,6 @@ install_deps
 fetch_msf
 setup_ruby
 symlinks
+postgres_db
 echo ""
 msg "Done! Run: msfconsole"
